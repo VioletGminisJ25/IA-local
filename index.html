@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--Dime todos los paises del mundo con sus respectivas capitales-->
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>IA Local</title>
+	<style>
+		.hidden{
+			animation: hidden 1.2s cubic-bezier(0.5, 0, 0.5, 1) forwards ;
+		}
+		.hidden::after{
+			display: none;
+		}
+
+		@keyframes hidden{
+			0%{
+				opacity: 100%;
+			}
+			100%{
+				opacity: 0%;
+				display: none;
+			}
+		}
+
+		#loader{
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 200px;
+			height: 200px;
+			top: 25%;
+			left: 25%;
+			text-align: center;
+			flex-direction: column;
+			h4{
+				margin-top: 100px;
+				width: 100px;
+				text-align: center;
+				transform: translateX(-10px);
+				text-wrap: balance;
+			}
+		}
+		.lds-ring {
+			/* change color here */
+			color: var(--background-color);	
+		}
+
+		.lds-ring,
+		.lds-ring div {
+			box-sizing: border-box;
+		}
+
+		.lds-ring {
+			width: 80px;
+			height:80px;
+		}
+
+		.lds-ring div {
+			box-sizing: border-box;
+			display: block;
+			position: absolute;
+			width: 64px;
+			height: 64px;
+			margin: 8px;
+			border: 8px solid currentColor;
+			border-radius: 50%;
+			animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+			border-color: currentColor transparent transparent transparent;
+		}
+
+		.lds-ring div:nth-child(1) {
+			animation-delay: -0.45s;
+		}
+
+		.lds-ring div:nth-child(2) {
+			animation-delay: -0.3s;
+		}
+
+		.lds-ring div:nth-child(3) {
+			animation-delay: -0.15s;
+		}
+
+		@keyframes lds-ring {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		h1 {
+			text-align: center;
+			color: var(--main);
+		}
+
+		:root {
+			--background-color: #f0f0f0;
+			--text-color: #17191A;
+			--main: #fff;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--background-color: #17191A;
+				--text-color: #f0f0f0;
+				--main: #dfd0d0;
+			}
+		}
+
+		@media (width < 500px) {
+			*{
+				scale: 0.92;
+			}
+			.message{
+				scale: 0.97;
+			}
+		}
+
+		body {
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+			background: var(--background-color);
+			display: grid;
+			place-content: center;
+			height: 100dvh;
+			overflow-y: hidden;
+		}
+
+		main {
+			width: 400px;
+			max-width: 100%;
+			height: 70vh;
+
+			background: var(--main);
+			border: 1px solid #ccc;
+			border-radius: 8px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			padding: 8px;
+			margin-bottom: 16px;
+
+			overflow-y: auto;
+			scroll-behavior: smooth;
+
+			&::-webkit-scrollbar {
+				width: 8px;
+				background-color: #ccc;
+				border-radius: 20px;
+				padding-right: 15px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background-color: var(--background-color);
+				border-radius: 6px;
+			}
+		}
+
+		ul {
+			display: flex;
+			flex-direction: column;
+			list-style: none;
+			padding: 0;
+		}
+
+		.message {
+			display: flex;
+			flex-direction: column;
+			margin: 4px 0;
+			padding: 4px 8px;
+
+			span {
+				width: 36px;
+				height: 36px;
+				background: #eee;
+				font-size: 12px;
+				font-weight: 500;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border-radius: 999999px;
+			}
+
+			p {
+				border-radius: 4px;
+				padding: 4px 8px;
+				margin-top: 8px;
+			}
+
+			&.user {
+				align-self: flex-end;
+				align-items: flex-end;
+
+				span,
+				p {
+					background: rgb(219, 236, 255);
+				}
+			}
+
+			&.bot {
+				align-self: flex-start;
+
+				span,
+				p {
+					background: rgba(88, 233, 75, 0.514);
+				}
+			}
+		}
+
+		small {
+			font-size: 13px;
+			color: #555;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			margin: auto;
+			width: 400px;
+			text-align: center;
+		}
+
+		form {
+			display: flex;
+
+			input {
+				border-radius: 9999999px;
+				flex-grow: 1;
+				border: 0;
+				padding: 8px;
+				margin: 8px;
+				border: 1px solid #ccc;
+				background: var(--main);
+				outline: none;
+			}
+
+			button {
+				background: #09f;
+				display: flex;
+				align-self: center;
+				align-items: center;
+				border: 0;
+				color: white;
+				border-radius: 6px;
+				cursor: pointer;
+				padding: 8px;
+				transition: background .3s ease;
+				height: 35px;
+
+				&:hover {
+					background: rgb(0, 119, 255);
+				}
+
+				&[disabled] {
+					background: #ccc;
+					opacity: 0.6;
+					pointer-events: none;
+				}
+			}
+		}
+	</style>
+	<script type="module">
+
+		import { CreateWebWorkerMLCEngine } from "https://esm.run/@mlc-ai/web-llm"
+
+		const $ = el => document.querySelector(el)
+
+		const $form = $("form")
+		const $input = $("form input")
+		const $template = $("#message-template")
+		const $messages = $("ul")
+		const $container = $("main")
+		const $button = $("button")
+		const $info = $("small")
+		const $loader = $("#loader")
+
+		let messages = [{ role: "system", content: "Habla en español pero no hagas traducciones ni des explicaciones sobre ello" }];
+
+		const SELECTED_MODEL = "Phi-3-mini-4k-instruct-q4f16_1-MLC-1k"
+
+		let loaded = false;
+		const engine = await CreateWebWorkerMLCEngine(
+			new Worker('/worker.js', { type: 'module' }),
+			SELECTED_MODEL,
+			{
+				initProgressCallback: (info) => {
+					$info.textContent = `${info.text}`
+					info.progress === 1 ? loaded = true : loaded = false;
+				}
+			}
+		)
+		if(loaded){
+			$loader.setAttribute("class","hidden")
+			$button.removeAttribute("disabled")
+		}
+
+		$form.addEventListener("submit", async (event) => {
+			event.preventDefault()
+			const messageText = $input.value.trim()
+
+			if (messageText !== "") {
+				$input.value = ""
+			}
+
+			addMessage(messageText, "user")
+			$button.setAttribute("disabled", true)
+
+			const userMessage = {
+				role: "user",
+				content: messageText
+			}
+
+			messages.push(userMessage)
+
+			const chunks = await engine.chat.completions.create({
+				messages,
+				stream: true
+			})
+
+			let reply = ""
+
+			const $botMessage = addMessage("", "bot")
+
+			for await (const chunk of chunks) {
+				//const [choice] = chunk.choices 
+				const choice = chunk.choices[0]
+				const content = choice.delta?.content ?? ""
+				reply += content
+				$botMessage.textContent = reply
+			}
+
+			$button.removeAttribute("disabled")
+			messages.push(
+				{
+					role: "assistant",
+					content: reply
+				}
+			)
+			$container.scrollTop = $container.scrollHeight
+		})
+
+		function addMessage(text, sender) {
+			// clonar el template
+			const clonedTemplate = $template.content.cloneNode(true)
+			const $newMessage = clonedTemplate.querySelector(".message")
+
+			const $who = $newMessage.querySelector("span")
+			const $text = $newMessage.querySelector("p")
+
+			$text.textContent = text
+			$who.textContent = sender === "bot" ? "IA" : "User"
+			$newMessage.classList.add(sender)
+
+			$messages.appendChild($newMessage)
+			$container.scrollTop = $container.scrollHeight
+
+			return $text
+		}
+	</script>
+</head>
+
+<body>
+	<h1>IA LOCAL</h1>
+	<main>
+		<div id="loader">
+			<div class="lds-ring">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<h4>This will take a few minutes</h4>
+			</div>
+		</div>
+		<ul></ul>
+	</main>
+	<form>
+		<input placeholder="Escribe tu mensaje aquí">
+		<button disabled>Enviar</button>
+	</form>
+
+	<small>&nbsp;</small>
+
+	<template id="message-template">
+		<li class="message">
+			<span></span>
+			<p></p>
+		</li>
+	</template>
+
+</body>
+
+</html>
