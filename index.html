@@ -288,7 +288,7 @@
 			{
 				initProgressCallback: (info) => {
 					$info.textContent = `${info.text}`
-					info.progress === 1 ? loaded = true : loaded = false;
+					loaded = info.progress === 1 ? true : false;
 				}
 			}
 		)
